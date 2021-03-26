@@ -1,0 +1,21 @@
+/* Font Imports from TTF Files */
+
+@font-face {
+    font-family: amazon_ember_thin;
+    src: url('fonts/amazon_ember_thin.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: amazon_ember_regular;
+    src: url('fonts/amazon_ember_regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: amazon_ember_bold;
+    src: url('fonts/amazon_ember_bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: amazon_ember_mono;
+    src: url('fonts/amazon_ember_mono.ttf') format('truetype');
+}
