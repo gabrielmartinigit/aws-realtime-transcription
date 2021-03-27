@@ -22,7 +22,16 @@ def save_transcription():
     # Id (date-hour-id) = audio file name
     # Segments (person, text, confidence, start time, end time, repaired words)
     # Author
-    # Number of repairs
+    return '200'
+
+@app.route('/audio?id', method='GET')
+def get_transcription():
+    return '200'
+
+@app.route('/audio', method='POST')
+def save_transcription():
+    # Id (date-hour-id) = audio file name
+    # Status
     return '200'
 
 if __name__ == '__main__':
