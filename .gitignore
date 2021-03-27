@@ -1,3 +1,5 @@
+## PYTHON ##
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -128,6 +130,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+## END PYTHON ##
+
+## NODEJS ##
+
 # Logs
 logs
 *.log
@@ -245,8 +251,13 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+## END NODEJS ##
+
+## TERRAFORM ##
+
 # Local .terraform directories
 **/.terraform/*
+.terraform
 
 # .tfstate files
 *.tfstate
@@ -279,3 +290,5 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+## END TERRAFORM ##

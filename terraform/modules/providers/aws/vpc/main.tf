@@ -1,19 +1,3 @@
-// Terraform settings
-
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.27"
-    }
-  }
-}
-
-provider "aws" {
-  profile = "default"
-  region  = "us-east-1"
-}
-
 // Provision VPC stack
 
 data "aws_availability_zones" "all" {}
@@ -116,14 +100,6 @@ resource "aws_route_table_association" "private_assoc" {
   route_table_id = element(aws_route_table.private.*.id, count.index)
 }
 
-resource "aws_route53_zone" "main_zone" {
-  name = "${var.environment}.${var.zone_name}.internal"
-
-  vpc {
-    vpc_id = aws_vpc.vpc.id
-  }
-}
-
 resource "aws_security_group" "vpc_security_group" {
   name   = "aws-${var.vpc_name}-vpc-sg"
   vpc_id = aws_vpc.vpc.id
@@ -150,15 +126,3 @@ resource "aws_security_group_rule" "egress_allow_all" {
 }
 
 // END of VPC
-
-// Provision frontend stack
-
-// END of frontend
-
-// Provision backend stack
-
-// END of backend
-
-// Provision database stack
-
-// END of database
