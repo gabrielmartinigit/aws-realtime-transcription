@@ -10,7 +10,8 @@ resource "aws_vpc" "vpc" {
   instance_tenancy     = "default"
 
   tags = {
-    Name = var.vpc_name
+    Name        = var.vpc_name
+    Environment = var.environment
   }
 }
 
@@ -22,7 +23,8 @@ resource "aws_subnet" "private_subnet" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "private-${var.vpc_name}-${element(data.aws_availability_zones.all.names, count.index)}-subnet"
+    Name        = "private-${var.vpc_name}-${element(data.aws_availability_zones.all.names, count.index)}-subnet"
+    Environment = var.environment
   }
 
   depends_on = [aws_vpc.vpc]
@@ -36,7 +38,8 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "public-${var.vpc_name}-${element(data.aws_availability_zones.all.names, count.index)}-subnet"
+    Name        = "public-${var.vpc_name}-${element(data.aws_availability_zones.all.names, count.index)}-subnet"
+    Environment = var.environment
   }
 
   depends_on = [aws_vpc.vpc]
@@ -45,12 +48,20 @@ resource "aws_subnet" "public_subnet" {
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id     = aws_vpc.vpc.id
   depends_on = [aws_vpc.vpc]
+
+  tags = {
+    Environment = var.environment
+  }
 }
 
 resource "aws_eip" "nat_gateway_eip" {
   count      = var.subnet_count
   vpc        = true
   depends_on = [aws_internet_gateway.internet_gateway]
+
+  tags = {
+    Environment = var.environment
+  }
 }
 
 resource "aws_nat_gateway" "nat_gateway" {
@@ -58,6 +69,10 @@ resource "aws_nat_gateway" "nat_gateway" {
   allocation_id = aws_eip.nat_gateway_eip.*.id[count.index]
   subnet_id     = aws_subnet.public_subnet.*.id[count.index]
   depends_on    = [aws_internet_gateway.internet_gateway, aws_subnet.public_subnet]
+
+  tags = {
+    Environment = var.environment
+  }
 }
 
 resource "aws_route_table" "public" {
@@ -70,7 +85,8 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "${var.vpc_name}-route_table_public"
+    Name        = "${var.vpc_name}-route_table_public"
+    Environment = var.environment
   }
 }
 
@@ -84,7 +100,8 @@ resource "aws_route_table" "private" {
   }
 
   tags = {
-    Name = "${var.vpc_name}-route_table_private"
+    Name        = "${var.vpc_name}-route_table_private"
+    Environment = var.environment
   }
 }
 
@@ -103,6 +120,10 @@ resource "aws_route_table_association" "private_assoc" {
 resource "aws_security_group" "vpc_security_group" {
   name   = "aws-${var.vpc_name}-vpc-sg"
   vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Environment = var.environment
+  }
 }
 
 resource "aws_security_group_rule" "allow_ssh_internal" {

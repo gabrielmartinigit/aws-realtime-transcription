@@ -1,5 +1,3 @@
-// VPC Variables
-
 variable "vpc_name" {
   default = "aitelemetry-vpc"
 }
