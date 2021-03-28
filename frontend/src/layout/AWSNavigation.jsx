@@ -1,8 +1,7 @@
 import SideNavigation, { SideNavigationItemType } from 'aws-northstar/components/SideNavigation';
 
 const navigationItems = [
-    { type: SideNavigationItemType.LINK, text: 'Telemetria', href: '/' },
-    { type: SideNavigationItemType.LINK, text: 'Transcrições', href: '/transcricoes' },
+    { type: SideNavigationItemType.LINK, text: 'Taquigrafia', href: '/' },
     { type: SideNavigationItemType.DIVIDER },
     { type: SideNavigationItemType.LINK, text: 'Arquitetura', href: '/arquitetura' },
     {

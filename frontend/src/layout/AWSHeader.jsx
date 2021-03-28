@@ -2,7 +2,7 @@ import Header from 'aws-northstar/components/Header';
 
 const AWSHeader = (
     <Header
-        title='AITelemetry'
+        title='AITaquigrafia'
         logoPath='list-icon.png'
     />
 );

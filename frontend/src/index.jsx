@@ -5,9 +5,8 @@ import AppLayout from 'aws-northstar/layouts/AppLayout';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 // Content pages rendered in the central panel
-import Telemetry from './content/Telemetry';
+import Taquigrafia from './content/Taquigrafia';
 import Architecture from './content/Architecture';
-import Transcription from './content/Transcription';
 import AWSHeader from './layout/AWSHeader';
 import AWSNavigation from './layout/AWSNavigation';
 import ThemeOverride from './layout/ThemeOverride';
@@ -20,10 +19,9 @@ ReactDOM.render(
                 header={AWSHeader}
                 navigation={AWSNavigation}>
                 <Switch>
-                    <Route path="/" exact={true} component={Telemetry} />
+                    <Route path="/" exact={true} component={Taquigrafia} />
                     <Route path="/arquitetura" exact={true} component={Architecture} />
-                    <Route path="/transcricoes" exact={true} component={Transcription} />
-                    <Route path="*" exact={true} component={Telemetry} />
+                    <Route path="*" exact={true} component={Taquigrafia} />
                 </Switch>
             </AppLayout>
         </NorthStarThemeProvider >

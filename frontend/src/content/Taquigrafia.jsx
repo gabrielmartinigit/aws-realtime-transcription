@@ -10,12 +10,8 @@ import Inline from 'aws-northstar/layouts/Inline';
 import StatusIndicator from 'aws-northstar/components/StatusIndicator';
 import Table from 'aws-northstar/components/Table';
 import DatePicker from 'aws-northstar/components/DatePicker';
-import { EventStreamMarshaller, Message } from '@aws-sdk/eventstream-marshaller';
-import { toUtf8, fromUtf8 } from '@aws-sdk/util-utf8-node';
-import mic from 'microphone-stream';
-import Axios from 'axios';
 
-function Telemetry() {
+function Taquigrafia() {
     const columnDefinitions = [
         {
             id: 'id',
@@ -49,16 +45,17 @@ function Telemetry() {
         {
             id: 'id0000001',
             status: 'inactive'
+        },
+        {
+            id: 'id0000002',
+            status: 'inactive'
         }
     ];
 
-    const tableActions = (
+    const tableActionsAudio = (
         <Inline>
             <Button variant="primary">
                 Iniciar
-            </Button>
-            <Button variant="link">
-                Atualizar
             </Button>
             <Button variant='link'>
                 Adicionar
@@ -66,20 +63,34 @@ function Telemetry() {
         </Inline>
     );
 
+    const tableActionsTrans = (
+        <Inline>
+            <Button variant="primary">
+                Editar
+            </Button>
+            <Button variant="link">
+                Excluir
+            </Button>
+        </Inline>
+    );
+
     return (
         <Grid container spacing={3}>
-            <Grid item xs={7}>
+            <Grid item xs={12}>
+                <Table
+                    actionGroup={tableActionsAudio}
+                    tableTitle='Áudios disponíveis'
+                    multiSelect={true}
+                    columnDefinitions={columnDefinitions}
+                    items={data}
+                    getRowId={React.useCallback(data => data.id, [])}
+                />
+            </Grid>
+            <Grid item xs={12}>
                 <Container
-                    title="Transcrição"
-                    subtitle="Tempo real"
+                    title="Segmentos"
+                    subtitle="Recortes do texto transcrito"
                 >
-                    <FormField controlId="formFieldId2">
-                        <Textarea controlId="formFieldId2" />
-                    </FormField>
-                    <Inline>
-                        <Button variant="primary">Iniciar</Button>
-                        <Button variant="link">Adicionar</Button>
-                    </Inline>
                 </Container>
             </Grid>
             <Grid item xs={5}>
@@ -101,36 +112,23 @@ function Telemetry() {
                             <Input type="text" controlId="formFieldId1" />
                         </FormField>
                         <FormField label="Pauta" hintText="Até 200 caracteres." controlId="formFieldId1">
-                            <Input type="text" controlId="formFieldId1" />
+                            <Textarea />
                         </FormField>
                     </Form>
                 </Container>
             </Grid>
-            <Grid item xs={12}>
-                <Container
-                    title="Transcrição"
-                    subtitle="Assíncrona"
-                >
-                    <Table
-                        actionGroup={tableActions}
-                        tableTitle='Áudios disponíveis'
-                        disableFilters={true}
-                        multiSelect={true}
-                        columnDefinitions={columnDefinitions}
-                        items={data}
-                        getRowId={React.useCallback(data => data.id, [])}
-                    />
-                </Container>
-            </Grid>
-            <Grid item xs={12}>
-                <Container
-                    title="Segmentos"
-                    subtitle="Recortes do texto corrigido"
-                >
-                </Container>
+            <Grid item xs={7}>
+                <Table
+                    actionGroup={tableActionsTrans}
+                    tableTitle='Transcrições'
+                    multiSelect={false}
+                    columnDefinitions={columnDefinitions}
+                    items={data}
+                    getRowId={React.useCallback(data => data.id, [])}
+                />
             </Grid>
         </Grid >
     );
 }
 
-export default Telemetry;
+export default Taquigrafia;
