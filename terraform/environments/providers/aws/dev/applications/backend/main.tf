@@ -28,7 +28,7 @@ module "transcription_table" {
   attributes = [
     {
       name = "trans_id"
-      type = "N"
+      type = "S"
     }
   ]
 }
@@ -40,7 +40,7 @@ module "audio_table" {
   attributes = [
     {
       name = "audio_id"
-      type = "N"
+      type = "S"
     }
   ]
 }
