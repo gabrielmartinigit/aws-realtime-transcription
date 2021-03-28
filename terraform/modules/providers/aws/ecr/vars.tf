@@ -3,5 +3,5 @@ variable "push_scan" {
 }
 
 variable "repo_name" {
-  default = "aitelemetry-repository"
+  type = string
 }
