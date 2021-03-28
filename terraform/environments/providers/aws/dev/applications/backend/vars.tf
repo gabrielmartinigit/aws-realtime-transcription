@@ -6,8 +6,12 @@ variable "repo_name" {
   default = "aitelemetry-repository"
 }
 
-variable "table_name" {
-  default = "aitelemetry-table"
+variable "table_name_trans" {
+  default = "aitelemetry-table-trans"
+}
+
+variable "table_name_audio" {
+  default = "aitelemetry-table-audio"
 }
 
 variable "bucket_name" {

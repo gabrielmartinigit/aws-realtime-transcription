@@ -21,13 +21,25 @@ module "container_repository" {
   repo_name = var.repo_name
 }
 
-module "dynamodb_table" {
+module "transcription_table" {
   source   = "terraform-aws-modules/dynamodb-table/aws"
-  name     = var.table_name
-  hash_key = "id"
+  name     = var.table_name_trans
+  hash_key = "trans_id"
   attributes = [
     {
-      name = "id"
+      name = "trans_id"
+      type = "N"
+    }
+  ]
+}
+
+module "audio_table" {
+  source   = "terraform-aws-modules/dynamodb-table/aws"
+  name     = var.table_name_audio
+  hash_key = "audio_id"
+  attributes = [
+    {
+      name = "audio_id"
       type = "N"
     }
   ]
