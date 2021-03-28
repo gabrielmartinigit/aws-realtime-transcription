@@ -293,5 +293,12 @@ terraform.rc
 
 ## END TERRAFORM ##
 
+## PROJECT ##
+
 # OSx
 .DS_Store
+
+# Samples
+samples
+
+## END PROJECT ##
