@@ -3,11 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@aws-sdk/eventstream-marshaller": "^3.6.1",
-    "@aws-sdk/util-utf8-node": "^3.6.1",
     "aws-northstar": "*",
     "axios": "^0.21.1",
-    "microphone-stream": "^5.3.1",
+    "lodash.orderby": "^4.6.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-scripts": "4.0.1"

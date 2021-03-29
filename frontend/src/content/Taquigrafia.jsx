@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import api from '../services/api';
 import Grid from 'aws-northstar/layouts/Grid';
 import Container from 'aws-northstar/layouts/Container';
 import Form from 'aws-northstar/components/Form';
-import FormField from 'aws-northstar/components/FormField'
+import FormField from 'aws-northstar/components/FormField';
 import Input from 'aws-northstar/components/Input';
 import Textarea from 'aws-northstar/components/Textarea';
 import Button from 'aws-northstar/components/Button';
@@ -10,27 +11,42 @@ import Inline from 'aws-northstar/layouts/Inline';
 import StatusIndicator from 'aws-northstar/components/StatusIndicator';
 import Table from 'aws-northstar/components/Table';
 import DatePicker from 'aws-northstar/components/DatePicker';
+import orderBy from 'lodash.orderby';
 
 function Taquigrafia() {
-    const columnDefinitions = [
+    // START AUDIO //
+
+    const columnDefinitionsAudio = [
         {
-            id: 'id',
+            id: 'audio_id',
             width: 200,
             Header: 'Id',
-            accessor: 'id'
+            accessor: 'audio_id'
         },
         {
-            id: 'status',
+            id: 'audio_path',
+            width: 200,
+            Header: 'File',
+            accessor: 'audio_path'
+        },
+        {
+            id: 'bucket',
+            width: 200,
+            Header: 'Bucket',
+            accessor: 'bucket'
+        },
+        {
+            id: 'trans_status',
             width: 200,
             Header: 'Status',
-            accessor: 'status',
+            accessor: 'trans_status',
             Cell: ({ row }) => {
                 if (row && row.original) {
-                    const status = row.original.status;
+                    const status = row.original.trans_status;
                     switch (status) {
-                        case 'active':
+                        case '1':
                             return <StatusIndicator statusType='positive'>transcrito</StatusIndicator>;
-                        case 'inactive':
+                        case '0':
                             return <StatusIndicator statusType='negative'>intranscrito</StatusIndicator>;
                         default:
                             return null;
@@ -41,27 +57,104 @@ function Taquigrafia() {
         }
     ];
 
-    const data = [
-        {
-            id: 'id0000001',
-            status: 'inactive'
-        },
-        {
-            id: 'id0000002',
-            status: 'inactive'
-        }
-    ];
+    const [dataAudio, setDataAudio] = useState([]);
+    const [rowCount, setRowCount] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const fetchIdRef = React.useRef(0);
+
+    const handleFetchData = useCallback(options => {
+        setLoading(true);
+        const fetchId = ++fetchIdRef.current;
+        setTimeout(() => {
+            if (fetchId === fetchIdRef.current) {
+                api.get('audios').then(response => {
+                    const filterData = response.data.filter(d => {
+                        if (options.filterText) {
+                            return d.audio_id.indexOf(options.filterText) > 0;
+                        }
+
+                        return true;
+                    });
+                    let tempData = filterData.slice(
+                        options.pageIndex * options.pageSize,
+                        (options.pageIndex + 1) * options.pageSize
+                    );
+                    if (options.sortBy && options.sortBy.length > 0) {
+                        tempData = orderBy(tempData, options.sortBy[0].id, options.sortBy[0].desc ? 'desc' : 'asc');
+                    }
+                    setDataAudio(tempData);
+                    setRowCount(filterData.length);
+                    setLoading(false);
+                });
+            }
+        }, 1000);
+    }, []);
 
     const tableActionsAudio = (
         <Inline>
             <Button variant="primary">
-                Iniciar
+                Transcrever
             </Button>
             <Button variant='link'>
-                Adicionar
+                Editar Texto
+            </Button>
+            <Button variant='link'>
+                Excluir
             </Button>
         </Inline>
     );
+
+    const [selectedFile, setSelectedFile] = useState();
+    const [isSelected, setIsSelected] = useState(false);
+
+    const changeHandler = (event) => {
+        setSelectedFile(event.target.files[0]);
+        setIsSelected(true);
+    };
+
+    const handleSubmission = () => {
+        if (isSelected === true) {
+            var reader = new FileReader();
+            reader.readAsDataURL(selectedFile);
+
+            reader.onload = function () {
+                const audio = {
+                    'base64audio': reader.result
+                }
+
+                api.post("/audio", audio).then(
+                    response => {
+                        console.log(response.data)
+                    }
+                );
+            };
+            reader.onerror = function (error) {
+                console.log('Error: ', error);
+            };
+        }
+    };
+
+    // END AUDIO //
+
+    // START TRANSCRIPTION //
+
+    const columnDefinitionsTrans = [
+        {
+            id: 'id',
+            width: 200,
+            Header: 'Id',
+            accessor: 'id'
+        }
+    ];
+
+    const dataTrans = [
+        {
+            id: 'id0000001'
+        },
+        {
+            id: 'id0000002'
+        }
+    ];
 
     const tableActionsTrans = (
         <Inline>
@@ -74,16 +167,28 @@ function Taquigrafia() {
         </Inline>
     );
 
+    // END TRANSCRIPTION //
+
     return (
         <Grid container spacing={3}>
+            <Grid item xs={12}>
+                <Inline>
+                    <input type="file" accept="audio/*" onChange={changeHandler} />
+                    <Button onClick={handleSubmission}>
+                        upload
+                    </Button>
+                </Inline>
+            </Grid>
             <Grid item xs={12}>
                 <Table
                     actionGroup={tableActionsAudio}
                     tableTitle='Áudios disponíveis'
                     multiSelect={true}
-                    columnDefinitions={columnDefinitions}
-                    items={data}
-                    getRowId={React.useCallback(data => data.id, [])}
+                    columnDefinitions={columnDefinitionsAudio}
+                    items={dataAudio}
+                    onFetchData={handleFetchData}
+                    rowCount={rowCount}
+                    loading={loading}
                 />
             </Grid>
             <Grid item xs={12}>
@@ -122,8 +227,8 @@ function Taquigrafia() {
                     actionGroup={tableActionsTrans}
                     tableTitle='Transcrições'
                     multiSelect={false}
-                    columnDefinitions={columnDefinitions}
-                    items={data}
+                    columnDefinitions={columnDefinitionsTrans}
+                    items={dataTrans}
                     getRowId={React.useCallback(data => data.id, [])}
                 />
             </Grid>

@@ -13,7 +13,7 @@ function Architecture() {
                     title="Arquitetura"
                     subtitle="Arquitetura cloud da solução"
                 >
-                    <img src={Diagram} className="center"></img>
+                    <img alt="aws architecture" src={Diagram} className="center"></img>
                     <ExpandableSection header="Descrição">
                         <Text variant='p'>
                             <ol>
