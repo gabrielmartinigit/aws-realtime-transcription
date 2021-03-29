@@ -90,10 +90,37 @@ function Taquigrafia() {
         }, 1000);
     }, []);
 
+    const [audioSelect, setAudioSelect] = useState()
+
+    const handleAudioSelect = (event) => {
+        setAudioSelect(event[0])
+    }
+
+    const handleTranscription = () => {
+        const audio = {
+            "audio_id": audioSelect.audio_id,
+            "audio_path": audioSelect.audio_path,
+            "bucket": audioSelect.bucket
+        }
+
+        api.post("/transcribe", audio).then(response => {
+            console.log(response)
+        });
+    }
+
+    const handleValidateStatus = () => {
+        api.get("/transcriptionstatus", { params: { id: audioSelect.audio_id } }).then(response => {
+            console.log(response)
+        });
+    }
+
     const tableActionsAudio = (
         <Inline>
-            <Button variant="primary">
+            <Button variant="primary" onClick={handleTranscription}>
                 Transcrever
+            </Button>
+            <Button variant='link' onClick={handleValidateStatus}>
+                Verificar
             </Button>
             <Button variant='link'>
                 Editar Texto
@@ -183,11 +210,12 @@ function Taquigrafia() {
                 <Table
                     actionGroup={tableActionsAudio}
                     tableTitle='Áudios disponíveis'
-                    multiSelect={true}
+                    multiSelect={false}
                     columnDefinitions={columnDefinitionsAudio}
                     items={dataAudio}
                     onFetchData={handleFetchData}
                     rowCount={rowCount}
+                    onSelectionChange={handleAudioSelect}
                     loading={loading}
                 />
             </Grid>
