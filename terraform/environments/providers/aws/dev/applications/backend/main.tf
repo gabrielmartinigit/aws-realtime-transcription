@@ -49,5 +49,13 @@ module "s3_bucket" {
   source        = "terraform-aws-modules/s3-bucket/aws"
   bucket        = var.bucket_name
   acl           = "private"
+  cors_rule = [
+    {
+      allowed_headers = ["*"]
+      allowed_methods = ["GET"]
+      allowed_origins = ["*"]
+      max_age_seconds = 3000
+    },
+  ]
   force_destroy = true
 }
