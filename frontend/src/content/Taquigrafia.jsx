@@ -11,7 +11,9 @@ import Inline from 'aws-northstar/layouts/Inline';
 import StatusIndicator from 'aws-northstar/components/StatusIndicator';
 import Table from 'aws-northstar/components/Table';
 import DatePicker from 'aws-northstar/components/DatePicker';
+import Text from 'aws-northstar/components/Text';
 import orderBy from 'lodash.orderby';
+import axios from 'axios';
 
 function Taquigrafia() {
     // START AUDIO //
@@ -114,6 +116,27 @@ function Taquigrafia() {
         });
     }
 
+    const [textTranscribe, setTextTranscribe] = useState([])
+
+    const handleEditText = () => {
+        setTextTranscribe([]) // clean up
+
+        api.get("/transcriptionurl", { params: { id: audioSelect.audio_id } }).then
+            (response => {
+                axios.get(response.data.url).then(response => {
+                    console.log(response.data.results.transcripts[0].transcript)
+                    setTextTranscribe(
+                        [
+                            {
+                                'id': '1',
+                                'text': response.data.results.transcripts[0].transcript
+                            },
+                        ]
+                    )
+                });
+            });
+    }
+
     const tableActionsAudio = (
         <Inline>
             <Button variant="primary" onClick={handleTranscription}>
@@ -122,7 +145,7 @@ function Taquigrafia() {
             <Button variant='link' onClick={handleValidateStatus}>
                 Verificar
             </Button>
-            <Button variant='link'>
+            <Button variant='link' onClick={handleEditText}>
                 Editar Texto
             </Button>
             <Button variant='link'>
@@ -224,6 +247,13 @@ function Taquigrafia() {
                     title="Segmentos"
                     subtitle="Recortes do texto transcrito"
                 >
+                    {textTranscribe.map(segment => {
+                        return (
+                            <Text variant='p' key={segment.id}>
+                                {segment.text}
+                            </Text>
+                        )
+                    })}
                 </Container>
             </Grid>
             <Grid item xs={5}>
