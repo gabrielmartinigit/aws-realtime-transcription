@@ -86,3 +86,14 @@ def generate_audio_url(id):
     )
 
     return presigned_url
+
+
+def update_audio_status(audio_id):
+    ddb = boto3.client('dynamodb')
+    table = config.audio_table
+
+    response = ddb.execute_statement(
+        Statement=f'UPDATE "{table}" SET trans_status=1 WHERE audio_id=\'{audio_id}\''
+    )
+
+    return response

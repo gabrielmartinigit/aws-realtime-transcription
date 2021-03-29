@@ -1,4 +1,4 @@
-from flask import Flask, Response, request, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 import json
 from datetime import datetime
@@ -20,27 +20,39 @@ def healthcheck():
 
 @app.route('/transcribe', methods=['POST'])
 def start_transcribe_job():
-    return Response("{'jobid':'transcribe_uri'}", status=200, mimetype='application/json')
+    payload = json.loads(request.data)
+    audio_id = payload['audio_id']
+    audio_path = payload['audio_path']
+    audio_bucket = payload['bucket']
 
-@app.route('/transcribe?id', methods=['GET'])
-def get_transcribe_job():
-    return Response("{'jobid':'transcribe_uri', 'status':'running'}", status=200, mimetype='application/json')
+    transcription_job = transcription.start_transcribe(audio_id, f'{audio_bucket}/{audio_path}')
+
+    transcription.save_transcription(transcription_job['job_id'], transcription_job['transcription_path'], transcription_job['bucket'], audio_id)
+
+    response = transcription_job
+
+    return jsonify(response), 200
 
 @app.route('/transcriptions', methods=['GET'])
 def get_transcriptions():
-    return Response("{'jobid':'transcribe_uri'}", status=200, mimetype='application/json')
+    response = transcription.get_transcriptions()
 
-@app.route('/transcription?id', methods=['GET'])
+    return jsonify(response), 200
+
+@app.route('/transcription', methods=['GET'])
 def get_transcription():
-    return Response("{'jobid':'transcribe_uri'}", status=200, mimetype='application/json')
 
-@app.route('/transcription', methods=['POST'])
-def save_transcription():
-    # Id (date-hour-id) = audio file name
-    # Segments (person, text, confidence, start time, end time, repaired words)
-    # AsyncStatus
-    # Author
-    return Response("{'jobid':'transcribe_uri'}", status=200, mimetype='application/json')
+    response = {}
+
+    return jsonify(response), 200
+
+@app.route('/transcriptionstatus', methods=['GET'])
+def get_transcription_status():
+    trans_id = request.args.get('id') # ?id=
+
+    response = transcription.get_job_status(trans_id)
+
+    return jsonify(response), 200
 
 @app.route('/audios', methods=['GET'])
 def get_audios():
