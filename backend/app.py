@@ -39,10 +39,15 @@ def get_transcriptions():
 
     return jsonify(response), 200
 
-@app.route('/transcription', methods=['GET'])
-def get_transcription():
+@app.route('/transcriptionurl', methods=['GET'])
+def get_transcription_url():
+    trans_id = request.args.get('id') # ?id=
 
-    response = {}
+    transcription_url = transcription.generate_transcription_url(trans_id)
+    
+    response = {
+        "url": transcription_url
+    }
 
     return jsonify(response), 200
 

@@ -80,11 +80,11 @@ def get_transcription(id):
     )
 
     transcription_object = {
-        'trans_id': transcription['trans_id']['S'],
-        'bucket': transcription['bucket']['S'],
-        'trans_path': transcription['trans_path']['S'],
-        'audio_id': transcription['audio_id']['S'],
-        'status': transcription['status']['N']
+        'trans_id': response['Items'][0]['trans_id']['S'],
+        'bucket': response['Items'][0]['bucket']['S'],
+        'trans_path': response['Items'][0]['trans_path']['S'],
+        'audio_id': response['Items'][0]['audio_id']['S'],
+        'status': response['Items'][0]['status']['N']
     }
 
     return transcription_object
@@ -105,6 +105,22 @@ def get_job_status(trans_id):
     }
 
     return status
+
+def generate_transcription_url(id):
+    s3 = boto3.client('s3')
+    transcription = get_transcription(id)
+    bucket = transcription['bucket']
+    path = transcription['trans_path']
+
+    presigned_url = s3.generate_presigned_url(
+        'get_object',
+        Params={'Bucket': bucket,
+                'Key': path
+            },
+        ExpiresIn=3600
+    )
+
+    return presigned_url
 
 def update_transcription_status(id):
     ddb = boto3.client('dynamodb')
