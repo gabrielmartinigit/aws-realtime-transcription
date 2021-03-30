@@ -1,22 +1,65 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import Grid from 'aws-northstar/layouts/Grid';
 import Container from 'aws-northstar/layouts/Container';
-import Form from 'aws-northstar/components/Form';
-import FormField from 'aws-northstar/components/FormField';
-import Input from 'aws-northstar/components/Input';
-import Textarea from 'aws-northstar/components/Textarea';
 import Button from 'aws-northstar/components/Button';
 import Inline from 'aws-northstar/layouts/Inline';
 import StatusIndicator from 'aws-northstar/components/StatusIndicator';
 import Table from 'aws-northstar/components/Table';
+import Flashbar from 'aws-northstar/components/Flashbar';
+
+import '../styles/global.css';
+
+/*
 import DatePicker from 'aws-northstar/components/DatePicker';
-import Text from 'aws-northstar/components/Text';
-import orderBy from 'lodash.orderby';
-import axios from 'axios';
+import Form from 'aws-northstar/components/Form';
+import FormField from 'aws-northstar/components/FormField';
+import Input from 'aws-northstar/components/Input';
+import Textarea from 'aws-northstar/components/Textarea';*/
 
 function Taquigrafia() {
     // START AUDIO //
+
+    const [showStatus, setShowStatus] = useState(false);
+    const [statusHeader, setStatusHeader] = useState();
+    const [statusContent, setStatusContent] = useState();
+    const [statusType, setStatusType] = useState();
+
+    const flashBarContent = {
+        header: statusHeader,
+        content: statusContent,
+        dismissible: false,
+        type: statusType,
+    };
+
+    const [playing, setPlaying] = useState(false);
+    const [audio, setAudio] = useState(new Audio());
+
+    useEffect(() => {
+        playing ? audio.play() : audio.pause();
+    },
+        [playing, audio]
+    );
+
+    useEffect(() => {
+        audio.addEventListener('ended', () => setPlaying(false));
+        return () => {
+            audio.removeEventListener('ended', () => setPlaying(false));
+        };
+    }, [audio]);
+
+    const handlePlayAudio = (audio_id) => {
+        api.get('audiourl', { params: { id: audio_id } }).then(
+            response => {
+                setAudio(new Audio(response.data.url));
+                setPlaying(!playing);
+            }
+        );
+    }
+
+    const handlePauseAudio = () => {
+        setPlaying(false);
+    }
 
     const columnDefinitionsAudio = [
         {
@@ -28,8 +71,22 @@ function Taquigrafia() {
         {
             id: 'audio_path',
             width: 200,
-            Header: 'File',
-            accessor: 'audio_path'
+            Header: 'Audio',
+            accessor: 'audio_path',
+            Cell: ({ row }) => {
+                if (row && row.original) {
+                    const audio_id = row.original.audio_id;
+                    switch (playing) {
+                        case true:
+                            return <Button variant="icon" icon="Stop" label="play" onClick={() => { handlePauseAudio() }} />
+                        case false:
+                            return <Button variant="icon" icon="PlayCircleFilled" label="play" onClick={() => { handlePlayAudio(audio_id) }} />
+                        default:
+                            return null;
+                    }
+                }
+                return null;
+            }
         },
         {
             id: 'bucket',
@@ -56,41 +113,25 @@ function Taquigrafia() {
                 }
                 return null;
             }
-        }
+        },
     ];
 
     const [dataAudio, setDataAudio] = useState([]);
-    const [rowCount, setRowCount] = useState(0);
     const [loading, setLoading] = useState(false);
-    const fetchIdRef = React.useRef(0);
 
-    const handleFetchData = useCallback(options => {
-        setLoading(true);
-        const fetchId = ++fetchIdRef.current;
-        setTimeout(() => {
-            if (fetchId === fetchIdRef.current) {
-                api.get('audios').then(response => {
-                    const filterData = response.data.filter(d => {
-                        if (options.filterText) {
-                            return d.audio_id.indexOf(options.filterText) > 0;
-                        }
-
-                        return true;
-                    });
-                    let tempData = filterData.slice(
-                        options.pageIndex * options.pageSize,
-                        (options.pageIndex + 1) * options.pageSize
-                    );
-                    if (options.sortBy && options.sortBy.length > 0) {
-                        tempData = orderBy(tempData, options.sortBy[0].id, options.sortBy[0].desc ? 'desc' : 'asc');
-                    }
-                    setDataAudio(tempData);
-                    setRowCount(filterData.length);
-                    setLoading(false);
-                });
+    useEffect(() => {
+        api.get('audios').then(
+            response => {
+                setDataAudio(response.data)
+            },
+            error => {
+                setStatusHeader('Falha');
+                setStatusContent('Não foi possível carregar os áudios.')
+                setStatusType('error');
+                setShowStatus(true);
             }
-        }, 1000);
-    }, []);
+        )
+    }, [])
 
     const [audioSelect, setAudioSelect] = useState()
 
@@ -105,15 +146,46 @@ function Taquigrafia() {
             "bucket": audioSelect.bucket
         }
 
-        api.post("/transcribe", audio).then(response => {
-            console.log(response)
-        });
+        setLoading(true);
+        setStatusHeader('Executando');
+        setStatusContent('Transcrição está sendo executada.')
+        setStatusType('info');
+        setShowStatus(true);
+
+        api.post("/transcribe", audio).then(
+            response => {
+                setStatusHeader('Sucesso');
+                setStatusContent('Transcrição realizada com sucesso.')
+                setStatusType('success');
+                setShowStatus(true);
+                setLoading(false)
+            },
+            error => {
+                setStatusHeader('Falha');
+                setStatusContent('Não foi possível transcrever o áudio.')
+                setStatusType('error');
+                setShowStatus(true);
+                setLoading(false);
+            }
+        );
     }
 
-    const handleValidateStatus = () => {
-        api.get("/transcriptionstatus", { params: { id: audioSelect.audio_id } }).then(response => {
-            console.log(response)
-        });
+    const handleUpdateAudioData = () => {
+        setLoading(true);
+
+        api.get('audios').then(
+            response => {
+                setDataAudio(response.data)
+                setLoading(false);
+            },
+            error => {
+                setStatusHeader('Falha');
+                setStatusContent('Não foi possível carregar os áudios.')
+                setStatusType('error');
+                setShowStatus(true);
+                setLoading(false);
+            }
+        )
     }
 
     const [textTranscribe, setTextTranscribe] = useState([])
@@ -121,19 +193,16 @@ function Taquigrafia() {
     const handleEditText = () => {
         setTextTranscribe([]) // clean up
 
-        api.get("/transcriptionurl", { params: { id: audioSelect.audio_id } }).then
+        api.get("/transcriptioncontent", { params: { id: audioSelect.audio_id } }).then
             (response => {
-                axios.get(response.data.url).then(response => {
-                    console.log(response.data.results.transcripts[0].transcript)
-                    setTextTranscribe(
-                        [
-                            {
-                                'id': '1',
-                                'text': response.data.results.transcripts[0].transcript
-                            },
-                        ]
-                    )
-                });
+                setTextTranscribe(
+                    [
+                        {
+                            'id': '1',
+                            'text': response.data.content
+                        },
+                    ]
+                )
             });
     }
 
@@ -142,15 +211,15 @@ function Taquigrafia() {
             <Button variant="primary" onClick={handleTranscription}>
                 Transcrever
             </Button>
-            <Button variant='link' onClick={handleValidateStatus}>
-                Verificar
+            <Button variant='link' onClick={handleUpdateAudioData}>
+                Atualizar
             </Button>
             <Button variant='link' onClick={handleEditText}>
                 Editar Texto
             </Button>
-            <Button variant='link'>
+            {/*<Button variant='link'>
                 Excluir
-            </Button>
+    </Button>*/}
         </Inline>
     );
 
@@ -172,14 +241,30 @@ function Taquigrafia() {
                     'base64audio': reader.result
                 }
 
+                setStatusHeader('Executando');
+                setStatusContent('Upload está sendo realizado')
+                setStatusType('info');
+                setShowStatus(true);
+
                 api.post("/audio", audio).then(
                     response => {
-                        console.log(response.data)
+                        setStatusHeader('Sucesso');
+                        setStatusContent('Upload realizado com sucesso.')
+                        setStatusType('success');
+                        setShowStatus(true);
+                    }, error => {
+                        setStatusHeader('Falha');
+                        setStatusContent('Upload não foi realizado com sucesso.')
+                        setStatusType('error');
+                        setShowStatus(true);
                     }
                 );
             };
             reader.onerror = function (error) {
-                console.log('Error: ', error);
+                setStatusHeader('Falha');
+                setStatusContent('Upload não foi realizado com sucesso.')
+                setStatusType('error');
+                setShowStatus(true);
             };
         }
     };
@@ -188,7 +273,7 @@ function Taquigrafia() {
 
     // START TRANSCRIPTION //
 
-    const columnDefinitionsTrans = [
+    /*const columnDefinitionsTrans = [
         {
             id: 'id',
             width: 200,
@@ -215,7 +300,7 @@ function Taquigrafia() {
                 Excluir
             </Button>
         </Inline>
-    );
+    );*/
 
     // END TRANSCRIPTION //
 
@@ -229,6 +314,15 @@ function Taquigrafia() {
                     </Button>
                 </Inline>
             </Grid>
+            {
+                (function () {
+                    if (showStatus) {
+                        return <Grid item xs={12}> <Flashbar items={[flashBarContent]} /> </Grid>;
+                    } else {
+                        return;
+                    }
+                })()
+            }
             <Grid item xs={12}>
                 <Table
                     actionGroup={tableActionsAudio}
@@ -236,8 +330,6 @@ function Taquigrafia() {
                     multiSelect={false}
                     columnDefinitions={columnDefinitionsAudio}
                     items={dataAudio}
-                    onFetchData={handleFetchData}
-                    rowCount={rowCount}
                     onSelectionChange={handleAudioSelect}
                     loading={loading}
                 />
@@ -249,14 +341,14 @@ function Taquigrafia() {
                 >
                     {textTranscribe.map(segment => {
                         return (
-                            <Text variant='p' key={segment.id}>
+                            <textarea key={segment.id} className="textareaclass">
                                 {segment.text}
-                            </Text>
+                            </textarea>
                         )
                     })}
                 </Container>
             </Grid>
-            <Grid item xs={5}>
+            {/*<Grid item xs={5}>
                 <Container
                     title="Formulário"
                     subtitle="Preenchimento de meta-dados para a transcrição. Ao cliclar em salvar, a transcrição e os meta-dados serão salvos."
@@ -289,7 +381,7 @@ function Taquigrafia() {
                     items={dataTrans}
                     getRowId={React.useCallback(data => data.id, [])}
                 />
-            </Grid>
+                    </Grid>*/}
         </Grid >
     );
 }

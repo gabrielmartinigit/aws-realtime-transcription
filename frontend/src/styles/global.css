@@ -4,3 +4,9 @@
     margin-right: auto;
     width: 50%;
   }
+
+.textareaclass {
+  white-space: pre-wrap;
+  width:100%;
+  height: 500px;
+}

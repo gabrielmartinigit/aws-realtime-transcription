@@ -5,6 +5,7 @@
   "dependencies": {
     "aws-northstar": "*",
     "axios": "^0.21.1",
+    "interweave": "^12.7.1",
     "lodash.orderby": "^4.6.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -33,5 +34,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "babel-plugin-jsx-control-statements": "^4.1.0",
+    "jsx-control-statements": "^3.2.8"
   }
 }
