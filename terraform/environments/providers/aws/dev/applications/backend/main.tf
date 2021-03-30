@@ -46,9 +46,9 @@ module "audio_table" {
 }
 
 module "s3_bucket" {
-  source        = "terraform-aws-modules/s3-bucket/aws"
-  bucket        = var.bucket_name
-  acl           = "private"
+  source = "terraform-aws-modules/s3-bucket/aws"
+  bucket = var.bucket_name
+  acl    = "private"
   cors_rule = [
     {
       allowed_headers = ["*"]
@@ -58,4 +58,46 @@ module "s3_bucket" {
     },
   ]
   force_destroy = true
+}
+
+resource "aws_iam_role" "ecs_transcribe_task" {
+  name = "ecs_transcribe_task"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = {
+    Name = "ecs_transcribe_task"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "task_role_attach1" {
+  role       = aws_iam_role.ecs_transcribe_task.name
+  policy_arn = data.aws_iam_policy.AmazonS3FullAccess.arn
+}
+
+resource "aws_iam_role_policy_attachment" "task_role_attach2" {
+  role       = aws_iam_role.ecs_transcribe_task.name
+  policy_arn = data.aws_iam_policy.AmazonTranscribeFullAccess.arn
+}
+
+resource "aws_iam_role_policy_attachment" "task_role_attach3" {
+  role       = aws_iam_role.ecs_transcribe_task.name
+  policy_arn = data.aws_iam_policy.AmazonDynamoDBFullAccess.arn
+}
+
+resource "aws_iam_role_policy_attachment" "task_role_attach4" {
+  role       = aws_iam_role.ecs_transcribe_task.name
+  policy_arn = data.aws_iam_policy.AmazonECSTaskExecutionRolePolicy.arn
 }
