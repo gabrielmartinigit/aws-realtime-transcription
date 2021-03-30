@@ -11,7 +11,7 @@ def upload_audio(filename, audio_base64):
     location = f'{path}{filename}{extension}'
 
     obj = s3.Object(bucket,f'{path}{filename}{extension}')
-    obj.put(Body=base64.b64decode(audio_base64))
+    obj.put(Body=base64.b64decode(audio_base64), ContentType='audio/mpeg')
 
     return location
 

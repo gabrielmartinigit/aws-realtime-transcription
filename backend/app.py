@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 import json
+import time
 from datetime import datetime
 import models.audio as audio
 import models.transcription as transcription
@@ -24,10 +25,15 @@ def start_transcribe_job():
     audio_id = payload['audio_id']
     audio_path = payload['audio_path']
     audio_bucket = payload['bucket']
+    status = ''
 
     transcription_job = transcription.start_transcribe(audio_id, f'{audio_bucket}/{audio_path}')
 
     transcription.save_transcription(transcription_job['job_id'], transcription_job['transcription_path'], transcription_job['bucket'], audio_id)
+
+    while status != 'COMPLETED':
+        time.sleep(3)
+        status = transcription.get_job_status(transcription_job['job_id'])
 
     response = transcription_job
 
@@ -39,6 +45,23 @@ def get_transcriptions():
 
     return jsonify(response), 200
 
+@app.route('/transcriptioncontent', methods=['GET'])
+def get_transcription_content():
+    trans_id = request.args.get('id') # ?id=
+
+    transcription_content = transcription.get_transcription_content(trans_id)
+
+    ## TODO
+    phrases = transcription.separate_phrases(transcription_content)
+    srt = transcription.write_srt(phrases)
+
+    response = {
+        'content': srt
+    }
+
+    return jsonify(response), 200
+    
+
 @app.route('/transcriptionurl', methods=['GET'])
 def get_transcription_url():
     trans_id = request.args.get('id') # ?id=
@@ -48,14 +71,6 @@ def get_transcription_url():
     response = {
         "url": transcription_url
     }
-
-    return jsonify(response), 200
-
-@app.route('/transcriptionstatus', methods=['GET'])
-def get_transcription_status():
-    trans_id = request.args.get('id') # ?id=
-
-    response = transcription.get_job_status(trans_id)
 
     return jsonify(response), 200
 
