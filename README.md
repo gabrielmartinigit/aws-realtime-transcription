@@ -1,6 +1,16 @@
-# AWS Real-time transcription demo
+# AWS Transcription demo
 
 ## Getting Started
+
+### IaC
+```
+cd terraform/
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+```
 
 ### Frontend
 ```
@@ -24,16 +34,7 @@ aws ecr get-login-password --region us-east-1 | docker login --username AWS --pa
 docker build -t aitelemetry-repository .
 docker tag aitelemetry-repository:latest <ACCOUNT ID>.dkr.ecr.us-east-1.amazonaws.com/aitelemetry-repository:latest
 docker push <ACCOUNT ID>.dkr.ecr.us-east-1.amazonaws.com/aitelemetry-repository:latest
-```
-
-### IaC
-```
-cd terraform/
-terraform init
-terraform fmt
-terraform validate
-terraform plan
-terraform apply
+Crie uma task isolada do tipo Fargate nas subnets públicas utilizando a Role: ecs_transcribe_task
 ```
 ## Clean Up
 
@@ -47,3 +48,4 @@ terraform destroy
 - https://automationrhapsody.com/how-to-use-aws-transcribe-in-real-time-with-react-and-net-core/
 - https://docs.aws.amazon.com/transcribe/latest/dg/streaming.html
 - https://www.hashicorp.com/resources/terraform-repository-best-practices
+- https://github.com/aws-samples/aws-transcribe-captioning-tools
