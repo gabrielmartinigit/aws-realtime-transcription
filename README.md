@@ -12,18 +12,6 @@ terraform plan
 terraform apply
 ```
 
-### Frontend
-```
-cd frontend/
-npm install
-npm start
-npm build
-aws s3 rm s3://<BUCKET NAME>/ --recursive
-aws s3 cp build/ s3://<BUCKET NAME>/ --recursive --acl public-read
-```
-
-Open the website: http://<BUCKET NAME>.s3-website-us-east-1.amazonaws.com
-
 ### Backend
 ```
 cd backend/
@@ -34,8 +22,22 @@ aws ecr get-login-password --region us-east-1 | docker login --username AWS --pa
 docker build -t aitelemetry-repository .
 docker tag aitelemetry-repository:latest <ACCOUNT ID>.dkr.ecr.us-east-1.amazonaws.com/aitelemetry-repository:latest
 docker push <ACCOUNT ID>.dkr.ecr.us-east-1.amazonaws.com/aitelemetry-repository:latest
-Crie uma task isolada do tipo Fargate nas subnets públicas utilizando a Role: ecs_transcribe_task
+# Crie uma task isolada do tipo Fargate nas subnets públicas utilizando a Role: ecs_transcribe_task
 ```
+
+### Frontend
+```
+cd frontend/
+npm install
+npm start
+# Ajustar em src/services/api.js para o IP público do container
+npm build
+aws s3 rm s3://<BUCKET NAME>/ --recursive
+aws s3 cp build/ s3://<BUCKET NAME>/ --recursive --acl public-read
+```
+
+Open the website: http://<BUCKET NAME>.s3-website-us-east-1.amazonaws.com
+
 ## Clean Up
 
 ```
