@@ -31,7 +31,7 @@ cd frontend/
 npm install
 npm start
 # Ajustar em src/services/api.js para o IP público do container
-npm build
+npm run build
 aws s3 rm s3://<BUCKET NAME>/ --recursive
 aws s3 cp build/ s3://<BUCKET NAME>/ --recursive --acl public-read
 ```
