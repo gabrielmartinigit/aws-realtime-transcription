@@ -15,12 +15,13 @@ def upload_audio(filename, audio_base64):
 
     return location
 
-def save_audio(id, path, bucket=config.s3_bucket, status=0):
+def save_audio(id, path, name, bucket=config.s3_bucket, status=0):
     ddb = boto3.client('dynamodb')
     table = config.audio_table
 
     audio_object = {
         'audio_id' : id,
+        'name': name,
         'bucket': bucket,
         'audio_path': path,
         'trans_status': status
@@ -43,12 +44,21 @@ def get_audios():
 
     audios_object = []
     for audio in response['Items']:
-        audio_object = {
-            'audio_id' : audio['audio_id']['S'],
-            'bucket': audio['bucket']['S'],
-            'audio_path': audio['audio_path']['S'],
-            'trans_status': audio['trans_status']['N']
-        }
+        if 'name' in audio:
+            audio_object = {
+                'audio_id' : audio['audio_id']['S'],
+                'name': audio['name']['S'],
+                'bucket': audio['bucket']['S'],
+                'audio_path': audio['audio_path']['S'],
+                'trans_status': audio['trans_status']['N']
+            }
+        else:
+            audio_object = {
+                'audio_id' : audio['audio_id']['S'],
+                'bucket': audio['bucket']['S'],
+                'audio_path': audio['audio_path']['S'],
+                'trans_status': audio['trans_status']['N']
+            }
 
         audios_object.append(audio_object)
 
@@ -64,6 +74,7 @@ def get_audio(id):
 
     audio_object = {
         'audio_id' : response['Items'][0]['audio_id']['S'],
+        'name': response['Items'][0]['name']['S'],
         'bucket': response['Items'][0]['bucket']['S'],
         'audio_path': response['Items'][0]['audio_path']['S'],
         'trans_status': response['Items'][0]['trans_status']['N']

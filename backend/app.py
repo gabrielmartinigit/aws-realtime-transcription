@@ -93,8 +93,9 @@ def save_audio():
     payload = json.loads(request.data)
     audio_id = datetime.now().strftime("%d%m%Y%H%M%S")
     audio_path = audio.upload_audio(audio_id, payload["base64audio"])
+    audio_name = payload["filename"]
 
-    audio.save_audio(audio_id, audio_path)
+    audio.save_audio(audio_id, audio_path, audio_name)
 
     response = {
         "audio_id": audio_id,

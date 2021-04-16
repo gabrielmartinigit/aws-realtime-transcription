@@ -10,13 +10,6 @@ import Flashbar from 'aws-northstar/components/Flashbar';
 
 import '../styles/global.css';
 
-/*
-import DatePicker from 'aws-northstar/components/DatePicker';
-import Form from 'aws-northstar/components/Form';
-import FormField from 'aws-northstar/components/FormField';
-import Input from 'aws-northstar/components/Input';
-import Textarea from 'aws-northstar/components/Textarea';*/
-
 function Taquigrafia() {
     // START AUDIO //
 
@@ -67,6 +60,12 @@ function Taquigrafia() {
             width: 200,
             Header: 'Id',
             accessor: 'audio_id'
+        },
+        {
+            id: 'name',
+            width: 200,
+            Header: 'Name',
+            accessor: 'name'
         },
         {
             id: 'audio_path',
@@ -234,11 +233,13 @@ function Taquigrafia() {
     const handleSubmission = () => {
         if (isSelected === true) {
             var reader = new FileReader();
+            const filename = selectedFile['name'];
             reader.readAsDataURL(selectedFile);
 
             reader.onload = function () {
                 const audio = {
-                    'base64audio': reader.result
+                    'base64audio': reader.result,
+                    'filename': filename
                 }
 
                 setStatusHeader('Executando');
@@ -270,39 +271,6 @@ function Taquigrafia() {
     };
 
     // END AUDIO //
-
-    // START TRANSCRIPTION //
-
-    /*const columnDefinitionsTrans = [
-        {
-            id: 'id',
-            width: 200,
-            Header: 'Id',
-            accessor: 'id'
-        }
-    ];
-
-    const dataTrans = [
-        {
-            id: 'id0000001'
-        },
-        {
-            id: 'id0000002'
-        }
-    ];
-
-    const tableActionsTrans = (
-        <Inline>
-            <Button variant="primary">
-                Editar
-            </Button>
-            <Button variant="link">
-                Excluir
-            </Button>
-        </Inline>
-    );*/
-
-    // END TRANSCRIPTION //
 
     return (
         <Grid container spacing={3}>
@@ -348,40 +316,6 @@ function Taquigrafia() {
                     })}
                 </Container>
             </Grid>
-            {/*<Grid item xs={5}>
-                <Container
-                    title="Formulário"
-                    subtitle="Preenchimento de meta-dados para a transcrição. Ao cliclar em salvar, a transcrição e os meta-dados serão salvos."
-                >
-                    <Form
-                        actions={
-                            <Inline>
-                                <Button variant="primary">Salvar</Button>
-                                <Button variant="link">Cancelar</Button>
-                            </Inline>
-                        }>
-                        <FormField label="Data" controlId="formFieldId1">
-                            <DatePicker />
-                        </FormField>
-                        <FormField label="Autor" controlId="formFieldId1">
-                            <Input type="text" controlId="formFieldId1" />
-                        </FormField>
-                        <FormField label="Pauta" hintText="Até 200 caracteres." controlId="formFieldId1">
-                            <Textarea />
-                        </FormField>
-                    </Form>
-                </Container>
-            </Grid>
-            <Grid item xs={7}>
-                <Table
-                    actionGroup={tableActionsTrans}
-                    tableTitle='Transcrições'
-                    multiSelect={false}
-                    columnDefinitions={columnDefinitionsTrans}
-                    items={dataTrans}
-                    getRowId={React.useCallback(data => data.id, [])}
-                />
-                    </Grid>*/}
         </Grid >
     );
 }
