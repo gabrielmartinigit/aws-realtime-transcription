@@ -1,20 +1,3 @@
-provider "aws" {
-  region = module.environment.aws_region
-}
-
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.27"
-    }
-  }
-}
-
-module "environment" {
-  source = "../../"
-}
-
 module "s3_bucket" {
   source        = "terraform-aws-modules/s3-bucket/aws"
   bucket        = var.bucket_name
@@ -25,4 +8,15 @@ module "s3_bucket" {
     index_document = "index.html"
     error_document = "index.html"
   }
+
+
+  cors_rule = [
+    {
+      allowed_methods = ["GET"]
+      allowed_origins = ["*"]
+      allowed_headers = ["*"]
+      expose_headers  = []
+      max_age_seconds = 0
+    }
+  ]
 }
