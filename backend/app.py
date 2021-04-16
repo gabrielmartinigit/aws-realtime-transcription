@@ -11,6 +11,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 cors = CORS(app) # public api
 
+PREFIX = "/transcribeapi"
+
 @app.route('/')
 def healthcheck():
     response = {
@@ -19,7 +21,7 @@ def healthcheck():
     
     return jsonify(response), 200
 
-@app.route('/transcribe', methods=['POST'])
+@app.route(f'{PREFIX}/transcribe', methods=['POST'])
 def start_transcribe_job():
     payload = json.loads(request.data)
     audio_id = payload['audio_id']
@@ -39,13 +41,13 @@ def start_transcribe_job():
 
     return jsonify(response), 200
 
-@app.route('/transcriptions', methods=['GET'])
+@app.route(f'{PREFIX}/transcriptions', methods=['GET'])
 def get_transcriptions():
     response = transcription.get_transcriptions()
 
     return jsonify(response), 200
 
-@app.route('/transcriptioncontent', methods=['GET'])
+@app.route(f'{PREFIX}/transcriptioncontent', methods=['GET'])
 def get_transcription_content():
     trans_id = request.args.get('id') # ?id=
 
@@ -62,7 +64,7 @@ def get_transcription_content():
     return jsonify(response), 200
     
 
-@app.route('/transcriptionurl', methods=['GET'])
+@app.route(f'{PREFIX}/transcriptionurl', methods=['GET'])
 def get_transcription_url():
     trans_id = request.args.get('id') # ?id=
 
@@ -74,13 +76,13 @@ def get_transcription_url():
 
     return jsonify(response), 200
 
-@app.route('/audios', methods=['GET'])
+@app.route(f'{PREFIX}/audios', methods=['GET'])
 def get_audios():
     response = audio.get_audios()
 
     return jsonify(response), 200
 
-@app.route('/audio', methods=['GET'])
+@app.route(f'{PREFIX}/audio', methods=['GET'])
 def get_audio():
     audio_id = request.args.get('id') # ?id=
     
@@ -88,7 +90,7 @@ def get_audio():
 
     return jsonify(response), 200
 
-@app.route('/audio', methods=['POST'])
+@app.route(f'{PREFIX}/audio', methods=['POST'])
 def save_audio():
     payload = json.loads(request.data)
     audio_id = datetime.now().strftime("%d%m%Y%H%M%S")
@@ -104,7 +106,7 @@ def save_audio():
     
     return jsonify(response), 200
 
-@app.route('/audiourl', methods=['GET'])
+@app.route(f'{PREFIX}/audiourl', methods=['GET'])
 def get_audio_url():
     audio_id = request.args.get('id') # ?id=
     audio_url = audio.generate_audio_url(audio_id)

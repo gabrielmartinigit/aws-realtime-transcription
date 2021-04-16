@@ -72,13 +72,21 @@ def get_audio(id):
         Statement=f'SELECT * FROM "{table}" WHERE audio_id=\'{id}\''
     )
 
-    audio_object = {
-        'audio_id' : response['Items'][0]['audio_id']['S'],
-        'name': response['Items'][0]['name']['S'],
-        'bucket': response['Items'][0]['bucket']['S'],
-        'audio_path': response['Items'][0]['audio_path']['S'],
-        'trans_status': response['Items'][0]['trans_status']['N']
-    }
+    if 'name' in response['Items'][0]:
+        audio_object = {
+            'audio_id' : response['Items'][0]['audio_id']['S'],
+            'name': response['Items'][0]['name']['S'],
+            'bucket': response['Items'][0]['bucket']['S'],
+            'audio_path': response['Items'][0]['audio_path']['S'],
+            'trans_status': response['Items'][0]['trans_status']['N']
+        }
+    else:
+        audio_object = {
+            'audio_id' : response['Items'][0]['audio_id']['S'],
+            'bucket': response['Items'][0]['bucket']['S'],
+            'audio_path': response['Items'][0]['audio_path']['S'],
+            'trans_status': response['Items'][0]['trans_status']['N']
+        }
 
     return audio_object
 
