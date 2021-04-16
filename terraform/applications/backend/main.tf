@@ -115,20 +115,50 @@ module "container_sg" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "aitelemetry_logs" {
+  name = "aitelemetry_logs"
+
+  tags = {
+    Terraform = "true"
+  }
+}
+
+### Dummy Task Definition to create service ###
 resource "aws_ecs_task_definition" "aitelemetry" {
   depends_on = [aws_iam_role.ecs_transcribe_task]
 
-  family                = "aitelemetry"
-  container_definitions = file("files/dummy-task.json")
+  family                   = "aitelemetry"
+  container_definitions    = data.template_file.web_task.rendered
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+
+  cpu    = "256"
+  memory = "512"
+
+  execution_role_arn = aws_iam_role.ecs_transcribe_task.arn
+  task_role_arn      = aws_iam_role.ecs_transcribe_task.arn
 }
 
 resource "aws_ecs_service" "aitelemetry" {
   name    = "aitelemetry"
   cluster = data.terraform_remote_state.infrastructure.outputs.ecs_cluster_id
 
-  task_definition         = aws_ecs_task_definition.aitelemetry.arn
-  enable_ecs_managed_tags = true
-  enable_execute_command  = true
+  task_definition                   = aws_ecs_task_definition.aitelemetry.arn
+  enable_ecs_managed_tags           = true
+  enable_execute_command            = true
+  platform_version                  = "LATEST"
+  health_check_grace_period_seconds = 0
+  desired_count                     = 0
+
+  capacity_provider_strategy {
+    base              = 0
+    capacity_provider = "FARGATE"
+    weight            = 1
+  }
+
+  deployment_controller {
+    type = "ECS"
+  }
 
   network_configuration {
     subnets          = data.terraform_remote_state.infrastructure.outputs.private_subnets
@@ -141,4 +171,11 @@ resource "aws_ecs_service" "aitelemetry" {
   #   container_name   = "mongo"
   #   container_port   = 8080
   # }
+
+  lifecycle {
+    ignore_changes = [
+      task_definition,
+      desired_count
+    ]
+  }
 }
