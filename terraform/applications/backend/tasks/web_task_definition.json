@@ -1,6 +1,6 @@
 [
     {
-        "name": "web",
+        "name": "transcribe-task",
         "image": "httpd:2.4",
         "portMappings": [
             {

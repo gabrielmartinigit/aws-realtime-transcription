@@ -13,3 +13,7 @@ output "public_subnets" {
 output "vpc_id" {
   value = module.default_vpc.vpc_id
 }
+
+output "listener_arn" {
+  value = aws_lb_listener.web.arn
+}

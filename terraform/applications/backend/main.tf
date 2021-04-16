@@ -85,21 +85,29 @@ resource "aws_iam_role_policy_attachment" "task_role_attach4" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# resource "aws_lb_listener_rule" "transcribeapi" {
-#   listener_arn = aws_lb_listener.front_end.arn
-#   priority     = 100
+resource "aws_lb_target_group" "transcribe-tg" {
+  name        = "transcribe-tg"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = data.terraform_remote_state.infrastructure.outputs.vpc_id
+}
 
-#   action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.static.arn
-#   }
+resource "aws_lb_listener_rule" "transcribeapi" {
+  listener_arn = data.terraform_remote_state.infrastructure.outputs.listener_arn
+  priority     = 100
 
-#   condition {
-#     path_pattern {
-#       values = ["/transcribeapi/*"]
-#     }
-#   }
-# }
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.transcribe-tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/transcribeapi", "/transcribeapi/*"]
+    }
+  }
+}
 
 module "container_sg" {
   source = "terraform-aws-modules/security-group/aws//modules/http-80"
@@ -166,11 +174,11 @@ resource "aws_ecs_service" "aitelemetry" {
     assign_public_ip = false
   }
 
-  # load_balancer {
-  #   target_group_arn = aws_lb_target_group.foo.arn
-  #   container_name   = "mongo"
-  #   container_port   = 8080
-  # }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.transcribe-tg.arn
+    container_name   = "transcribe-task"
+    container_port   = 80
+  }
 
   lifecycle {
     ignore_changes = [
