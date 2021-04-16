@@ -73,7 +73,8 @@ module "ecs_cluster" {
 
   default_capacity_provider_strategy = [
     {
-      capacity_provider = "FARGATE"
+      capacity_provider = "FARGATE",
+      weight            = "1"
     }
   ]
 
