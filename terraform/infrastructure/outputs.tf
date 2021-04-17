@@ -17,3 +17,7 @@ output "vpc_id" {
 output "listener_arn" {
   value = aws_lb_listener.web.arn
 }
+
+output "ecs_cluster_name" {
+  value = module.ecs_cluster.this_ecs_cluster_name 
+}
