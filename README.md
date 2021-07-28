@@ -4,13 +4,26 @@
 
 ### IaC
 ```
-# Change vars on Terraform
 cd terraform/
+# Infrastructure
+cd infrastructure/
+# change vars.tf file with a new name
 terraform init
 terraform fmt
 terraform validate
 terraform plan
 terraform apply
+cd ../
+# Application
+cd applications/
+cd backend/
+# change vars.tf file with a new name
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+# repeat for frontend
 ```
 
 ### Backend
@@ -20,23 +33,19 @@ terraform apply
 cd backend/
 virtualenv venv
 source venv/bin/activate
-pip install -r requirements
+pip install -r requirements.txt
+# Change config.py file
 docker build -t aitelemetry-repository .
 docker run -d -p 80:80 aitelemetry-repository:latest
 ```
 
-- Push image:
-```
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <ACCOUNT ID>.dkr.ecr.us-east-1.amazonaws.com
-docker tag aitelemetry-repository:latest <ACCOUNT ID>.dkr.ecr.us-east-1.amazonaws.com/aitelemetry-repository:latest
-docker push <ACCOUNT ID>.dkr.ecr.us-east-1.amazonaws.com/aitelemetry-repository:latest
-```
-
 - Deploy ECS service:
 ```
+# Change config.py file
+# Build & Push image to ECR
 # Update Task Definition https://docs.aws.amazon.com/AmazonECS/latest/developerguide/update-task-definition.html (E.g. in backend/task-definition.json)
 # Update the ECS Service
-aws ecs update-service --cluster aitelemetry --service aitelemetry --task-defition aitelemetry:<REVISION> --force-new-deployment
+aws ecs update-service --cluster <CLUSTER_NAME> --service aitelemetry --task-definition <FAMILY> --force-new-deployment
 ```
 
 ### Frontend
@@ -51,6 +60,7 @@ npm start
 - Deploy S3 frontend:
 ```
 # Adjust localhost in src/services/api.js for loadbalancer' DNS
+npm install
 npm run build
 aws s3 rm s3://<BUCKET NAME>/ --recursive
 aws s3 cp build/ s3://<BUCKET NAME>/ --recursive --acl public-read

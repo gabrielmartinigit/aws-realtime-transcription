@@ -1,3 +1,3 @@
-s3_bucket = 'aitelemetry-transcribe'
-audio_table = 'aitelemetry-table-audio'
-trans_table = 'aitelemetry-table-trans'
+s3_bucket = '<S3_BUCKET>'
+audio_table = '<DDB_AUDIO_TABLE>'
+trans_table = '<DDB_TRANS_TABLE>'

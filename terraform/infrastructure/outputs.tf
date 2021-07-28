@@ -1,5 +1,5 @@
 output "ecs_cluster_id" {
-  value = module.ecs_cluster.this_ecs_cluster_id
+  value = module.ecs_cluster.ecs_cluster_id
 }
 
 output "private_subnets" {
@@ -19,5 +19,5 @@ output "listener_arn" {
 }
 
 output "ecs_cluster_name" {
-  value = module.ecs_cluster.this_ecs_cluster_name 
+  value = module.ecs_cluster.ecs_cluster_name
 }

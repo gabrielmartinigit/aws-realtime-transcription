@@ -35,12 +35,12 @@ module "alb_sg" {
 module "alb" {
   source = "terraform-aws-modules/alb/aws"
 
-  name               = "telemetry-alb"
+  name               = var.name
   load_balancer_type = "application"
 
   vpc_id          = module.default_vpc.vpc_id
   subnets         = module.default_vpc.public_subnets
-  security_groups = [module.alb_sg.this_security_group_id]
+  security_groups = [module.alb_sg.security_group_id]
 
   tags = {
     Terraform = "true"
@@ -48,7 +48,7 @@ module "alb" {
 }
 
 resource "aws_lb_listener" "web" {
-  load_balancer_arn = module.alb.this_lb_arn
+  load_balancer_arn = module.alb.lb_arn
   port              = "80"
   protocol          = "HTTP"
 

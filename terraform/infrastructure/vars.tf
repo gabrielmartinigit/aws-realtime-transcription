@@ -1,3 +1,3 @@
 variable "name" {
-  default = "aitelemetry"
+  default = "aitelemetry-martinig"
 }

@@ -9,7 +9,7 @@
         "logDriver": "awslogs",
         "secretOptions": null,
         "options": {
-          "awslogs-group": "aitelemetry_logs",
+          "awslogs-group": "<LOG_GROUP>",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
@@ -62,7 +62,7 @@
   "requiresCompatibilities": [
     "FARGATE"
   ],
-  "family": "aitelemetry",
+  "family": "<FAMILY>",
   "pidMode": null,
   "networkMode": "awsvpc",
   "cpu": "256",

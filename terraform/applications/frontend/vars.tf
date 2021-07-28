@@ -1,3 +1,3 @@
 variable "bucket_name" {
-  default = "aitelemetry-website"
+  default = "aitelemetry-website-martinig"
 }
